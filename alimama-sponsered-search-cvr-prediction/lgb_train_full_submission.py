@@ -110,10 +110,15 @@ with timer('Feature engineering'):
     df_full_processed = []
     
     # get the customers (users) gender ratio for each shop
-    df_shop_gender_ratio = train.groupby(['shop_id'])['user_gender_id']                            .agg([lambda x: np.mean(x == 0)])                            .reset_index()                            .rename(columns={'<lambda>': 'shop_user_gender_ratio'})
+    df_shop_gender_ratio = train.groupby(['shop_id'])['user_gender_id']\
+                                .agg([lambda x: np.mean(x == 0)])\
+                                .reset_index().rename(columns={'<lambda>': 'shop_user_gender_ratio'})
     
     # get the average age level of customers for each shop
-    df_shop_avg_age_level = train.groupby(['shop_id'])['user_age_level']                            .mean()                            .reset_index()                            .rename(columns={'user_age_level': 'user_avg_age_level'})
+    df_shop_avg_age_level = train.groupby(['shop_id'])['user_age_level']\
+                                 .mean()\
+                                 .reset_index()\
+                                 .rename(columns={'user_age_level': 'user_avg_age_level'})
                  
     for df in df_full:
         
@@ -150,7 +155,7 @@ with timer('Feature engineering'):
         df = df.merge(df_shop_gender_ratio, on='shop_id', how='left')
         df = df.merge(df_shop_avg_age_level, on='shop_id', how='left')
          
-        df['predict_category'] = df['predict_category_property'].str.split(';')            .apply(lambda x: [p[0] for p in [p.split(':') for p in x]])
+        df['predict_category'] = df['predict_category_property'].str.split(';').apply(lambda x: [p[0] for p in [p.split(':') for p in x]])
         
         df['predict_category_count'] = df.apply(lambda x: true_predict_count(x['item_category_list'], x['predict_category']), axis=1)
         df['predict_category_recall'] = df.apply(lambda x: true_predict_recall(x['item_category_list'], x['predict_category']), axis=1)
